@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        // Перенаправляем домашнюю директорию Go в папку сборки Jenkins
+        HOME = "${WORKSPACE}"
+        GOCACHE = "${WORKSPACE}/.cache/go-build"
+    }
+
     stages { 
         stage('Unit Tests - Backend') {
             agent {
