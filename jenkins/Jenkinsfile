@@ -151,6 +151,20 @@ pipeline {
                     sh 'npx playwright test integration.spec.ts'
                 }
             }
+
+            post {
+                always {
+                    junit 'tests-e2e/test-results/results.xml'
+                    publishHTML target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'tests-e2e/playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Integration Test Report'
+                    ]
+                }
+            }
         }
     }
 
