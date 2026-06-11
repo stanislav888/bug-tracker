@@ -109,6 +109,7 @@ pipeline {
                     args '-u 0 --network=host'  // Runs container as root, also local network
                 }
             }
+
             steps {
                 dir('tests-api') {
                     sh 'npx wait-port http://localhost:8080/api/health -t 30000'
@@ -119,9 +120,10 @@ pipeline {
             }
          }
 
-    post {
-        always {
-            cleanWs()
+        post {
+            always {
+                cleanWs()
+            }
         }
     }
 }
