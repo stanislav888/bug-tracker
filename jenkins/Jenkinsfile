@@ -19,6 +19,30 @@ pipeline {
             steps {
                 dir('bugtracker-backend') {
                     sh 'go test -v ./...'
+                    
+                    sh '''
+                        # Generate coverage report
+                        go test -coverprofile=coverage.out -covermode=atomic ./...
+                        go tool cover -html=coverage.out -o coverage.html
+
+                        mkdir -p reports
+                        mv coverage.html reports/
+                        mv report.xml reports/
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    junit 'bugtracker-backend/reports/report.xml'
+                    publishHTML target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'bugtracker-backend/reports',
+                reportFiles: 'coverage.html',
+                reportName: 'Backend Coverage Report'
+                ]
                 }
             }
         }
