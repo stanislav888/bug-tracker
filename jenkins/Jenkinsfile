@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Перенаправляем домашнюю директорию Go в папку сборки Jenkins
         HOME = "${WORKSPACE}"
+        GOPATH = "${WORKSPACE}/go"
         GOCACHE = "${WORKSPACE}/.cache/go-build"
+        GOMODCACHE = "${WORKSPACE}/go/pkg/mod"
     }
 
     stages { 
