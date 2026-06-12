@@ -111,3 +111,26 @@ jobs:
           name: Frontend Unit Tests Report
           path: bugtracker-frontend/test-results.xml
           reporter: jest-junit
+
+  api-e2e-perf-tests:
+    needs: [unit-tests-backend, unit-tests-frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Docker versions
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Launch Application
+        run: |
+          docker compose up --build -d
+          npx wait-port http://localhost:8080/api/health -t 30000
+          
