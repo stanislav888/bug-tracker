@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [custom]
+  pull_request:
+    branches: [custom]
+
+jobs:
+  unit-tests-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+          cache: true
+          cache-dependency-path: bugtracker-backend/go.sum
+
+      - name: Install go-junit-report
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
+
+      - name: Test backend
+        id: test-backend
+        working-directory: ./bugtracker-backend
+        run: |
+          go test -json -coverprofile=coverage.out -covermode=atomic ./... > test-results.json
+          go tool cover -func=coverage.out > coverage.txt
+
+          # This makes the report available to the create-coverage-comment job
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          cat coverage.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # This makes the coverage report available in the GitHub Actions UI
+          echo "## Go Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          go test -v ./... 2>&1 | go-junit-report > test-results.xml
+
+      - name: Generate backend test report
+        uses: guyarb/golang-test-annotations@v0.7.0
+        if: always()
+        with:
+          test-results: bugtracker-backend/test-results.json
+          package-name: bugtracker-backend
+
+      - name: Publish backend test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Backend Unit Tests Report
+          path: bugtracker-backend/test-results.xml
+          reporter: jest-junit
