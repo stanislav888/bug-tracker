@@ -89,3 +89,11 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat full_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish frontend test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Frontend Unit Tests Report
+          path: bugtracker-frontend/test-results.xml
+          reporter: jest-junit
