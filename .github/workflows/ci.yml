@@ -140,6 +140,17 @@ jobs:
           npm ci
           npx playwright test
 
+      - name: Run E2E Tests
+        working-directory: ./tests-e2e
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3000"
+          API_BASE_URL: "http://localhost:8080"
+          CI: "1"
+        run: |
+          npm ci
+          npx playwright install 
+          npx playwright test integration.spec.ts
+
       - name: Shut Down Application
         run: docker compose down
 
